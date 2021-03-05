@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpclienttests-enabled-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpclienttests-enabled
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: httpclienttests-enabled
+    spec:
+      containers:
+      - name: httpclienttests-enabled
+        resources: {}
+        image: httptest.azurecr.io/httpclienttests:v4
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpclienttests-enabled-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: httpclienttests-enabled
+  ports:
+  - port: 80
+    targetPort: 80
+
