@@ -17,7 +17,7 @@ spec:
       containers:
       - name: httpclienttests-enabled
         resources: {}
-        image: httptest.azurecr.io/httpclienttests:v5
+        image: httptest.azurecr.io/httpclienttests:v7
         ports:
         - containerPort: 80
 ---
