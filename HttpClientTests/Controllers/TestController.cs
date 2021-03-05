@@ -17,7 +17,7 @@ namespace HttpClientTests.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<TestController> _logger;
 
-        private readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient Client = new HttpClient();
 
         public TestController(IHttpClientFactory httpClientFactory, ILogger<TestController> logger)
         {
@@ -75,7 +75,7 @@ namespace HttpClientTests.Controllers
             var sw = Stopwatch.StartNew();
             for (var i = 0; i < count; i++)
             {
-                var result = await _client.GetAsync(url);
+                var result = await Client.GetAsync(url);
                 var content = await result.Content.ReadAsStringAsync();
                 dict[content] = dict.GetValueOrDefault(content) + 1;
             }
