@@ -38,7 +38,8 @@ namespace HttpClientTests.Controllers
                 InnerHandler = new SocketsHttpHandler()
             }
         );
-        
+
+        private IHostApplicationLifetime _applicationLifetime;
         
         static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
         {
@@ -51,10 +52,11 @@ namespace HttpClientTests.Controllers
                 );
         }
 
-        public TestController(IHttpClientFactory httpClientFactory, ILogger<TestController> logger)
+        public TestController(IHttpClientFactory httpClientFactory, ILogger<TestController> logger, IHostApplicationLifetime applicationLifetime)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _applicationLifetime = applicationLifetime;
         }
 
         [HttpGet]
@@ -70,14 +72,15 @@ namespace HttpClientTests.Controllers
             Interlocked.Increment(ref _counter);
             if (_counter % 3 == 0)
             {
-                return StatusCode(StatusCodes.Status504GatewayTimeout);
+                _applicationLifetime.StopApplication();
+                Thread.Sleep(20000);
             }
             
             return Ok(Environment.MachineName);
         }
 
         [HttpGet("inside/{count}/{url}")]
-        public async Task<IDictionary<string,long>> GetInside(int count, string url)
+        public async Task<dynamic> GetInside(int count, string url)
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
@@ -91,11 +94,14 @@ namespace HttpClientTests.Controllers
             }
             sw.Stop();
             dict["TotalTime"] = sw.ElapsedMilliseconds;
-            return dict;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
         }
 
         [HttpGet("outside/{count}/{url}")]
-        public async Task<IDictionary<string,long>> GetOutside(int count, string url)
+        public async Task<dynamic> GetOutside(int count, string url)
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
@@ -109,11 +115,14 @@ namespace HttpClientTests.Controllers
             }
             sw.Stop();
             dict["TotalTime"] = sw.ElapsedMilliseconds;
-            return dict;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
         }
         
         [HttpGet("shortened/{count}/{url}")]
-        public async Task<IDictionary<string,long>> GetShortened(int count, string url)
+        public async Task<dynamic> GetShortened(int count, string url)
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
@@ -127,11 +136,14 @@ namespace HttpClientTests.Controllers
             }
             sw.Stop();
             dict["TotalTime"] = sw.ElapsedMilliseconds;
-            return dict;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
         }
         
         [HttpGet("defaultHttpHandler/{count}/{url}")]
-        public async Task<IDictionary<string,long>> GetDefaultHttpHandler(int count, string url)
+        public async Task<dynamic> GetDefaultHttpHandler(int count, string url)
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
@@ -144,11 +156,14 @@ namespace HttpClientTests.Controllers
             }
             sw.Stop();
             dict["TotalTime"] = sw.ElapsedMilliseconds;
-            return dict;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
         }
 
         [HttpGet("customHandler/{count}/{url}")]
-        public async Task<IDictionary<string,long>> GetCustomHandler(int count, string url)
+        public async Task<dynamic> GetCustomHandler(int count, string url)
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
@@ -161,11 +176,14 @@ namespace HttpClientTests.Controllers
             }
             sw.Stop();
             dict["TotalTime"] = sw.ElapsedMilliseconds;
-            return dict;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
         }
 
         [HttpGet("retryHandler/{count}/{url}")]
-        public async Task<IDictionary<string, long>> GetWithRetries(int count, string url)
+        public async Task<dynamic> GetWithRetries(int count, string url)
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
@@ -179,11 +197,14 @@ namespace HttpClientTests.Controllers
 
             sw.Stop();
             dict["TotalTime"] = sw.ElapsedMilliseconds;
-            return dict;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
         }
 
         [HttpGet("singleton/{count}/{url}")]
-        public async Task<IDictionary<string,long>> GetSingleton(int count, string url)
+        public async Task<dynamic> GetSingleton(int count, string url)
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
@@ -196,10 +217,14 @@ namespace HttpClientTests.Controllers
             }
             sw.Stop();
             dict["TotalTime"] = sw.ElapsedMilliseconds;
-            return dict;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
         }
+        
         [HttpGet("manual/{count}/{path}/{ipList}")]
-        public async Task<IDictionary<string,long>> GetSingleton(int count, string path, string ipList)
+        public async Task<dynamic> GetSingleton(int count, string path, string ipList)
         {
             path = WebUtility.UrlDecode(path).TrimStart('/');
             var dict = new Dictionary<string, long>();
@@ -222,7 +247,10 @@ namespace HttpClientTests.Controllers
             sw.Stop();
             dict["TotalTime"] = sw.ElapsedMilliseconds;
             dict["ClientsCount"] = urlList.Distinct().Count();
-            return dict;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
         }
     }
 }
