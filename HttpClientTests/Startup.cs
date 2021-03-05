@@ -27,6 +27,8 @@ namespace HttpClientTests
         {
             services.AddControllers();
             services.AddHttpClient();
+            services.AddHttpClient("shortenedhandlerlifetime")
+                .SetHandlerLifetime(TimeSpan.FromSeconds(10));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

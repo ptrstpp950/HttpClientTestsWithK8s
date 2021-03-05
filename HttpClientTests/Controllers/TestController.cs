@@ -18,6 +18,7 @@ namespace HttpClientTests.Controllers
         private readonly ILogger<TestController> _logger;
 
         private static readonly HttpClient Client = new HttpClient();
+        private static readonly HttpClient ClientWithDefaultHandler = new HttpClient(new HttpClientHandler());
 
         public TestController(IHttpClientFactory httpClientFactory, ILogger<TestController> logger)
         {
@@ -59,6 +60,41 @@ namespace HttpClientTests.Controllers
             for (var i = 0; i < count; i++)
             {
                 var result = await client.GetAsync(url);
+                var content = await result.Content.ReadAsStringAsync();
+                dict[content] = dict.GetValueOrDefault(content) + 1;
+            }
+            sw.Stop();
+            dict["TotalTime"] = sw.ElapsedMilliseconds;
+            return dict;
+        }
+        
+        [HttpGet("shortened/{count}/{url}")]
+        public async Task<IDictionary<string,long>> GetShortened(int count, string url)
+        {
+            url = WebUtility.UrlDecode(url);
+            var dict = new Dictionary<string, long>();
+            var sw = Stopwatch.StartNew();
+            var client = _httpClientFactory.CreateClient("shortenedhandlerlifetime");
+            for (var i = 0; i < count; i++)
+            {
+                var result = await client.GetAsync(url);
+                var content = await result.Content.ReadAsStringAsync();
+                dict[content] = dict.GetValueOrDefault(content) + 1;
+            }
+            sw.Stop();
+            dict["TotalTime"] = sw.ElapsedMilliseconds;
+            return dict;
+        }
+        
+        [HttpGet("defaultHttpHandler/{count}/{url}")]
+        public async Task<IDictionary<string,long>> GetDefaultHttpHandler(int count, string url)
+        {
+            url = WebUtility.UrlDecode(url);
+            var dict = new Dictionary<string, long>();
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < count; i++)
+            {
+                var result = await ClientWithDefaultHandler.GetAsync(url);
                 var content = await result.Content.ReadAsStringAsync();
                 dict[content] = dict.GetValueOrDefault(content) + 1;
             }
