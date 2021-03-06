@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpclienttests-disabled-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpclienttests-disabled
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: disabled
+      labels:
+        app: httpclienttests-disabled
+    spec:
+      containers:
+      - name: httpclienttests-disabled
+        resources: {}
+        image: httptest.azurecr.io/httpclienttests:$VERSION
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpclienttests-disabled-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: httpclienttests-disabled
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpclienttests-enabled-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpclienttests-enabled
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: httpclienttests-enabled
+    spec:
+      containers:
+      - name: httpclienttests-enabled
+        resources: {}
+        image: httptest.azurecr.io/httpclienttests:$VERSION
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpclienttests-enabled-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: httpclienttests-enabled
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpclienttests-test-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: httpclienttests-test
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: disabled
+      labels:
+        app: httpclienttests-test
+    spec:
+      containers:
+      - name: httpclienttests-test
+        resources: {}
+        image: httptest.azurecr.io/httpclienttests:$VERSION
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: httpclienttests-test
+  ports:
+  - port: 80
+    targetPort: 80
