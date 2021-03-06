@@ -66,13 +66,13 @@ jobs:
       - name: Render Deployment YAML
         uses: nowactions/envsubst@v1
         with:
-          input: ./deploy-templates/deployment.template.yaml
-          output: ./deploy-templates/deployment.yaml
+          input: ./deployment.template.yaml
+          output: ./deployment.yaml
         env:
           VERSION: ${{ env.VERSION }}
       - name: Show deployment file
         run: |
-          cat ./deploy-templates/deployment.yaml
+          cat ./deployment.yaml
 
       - uses: azure/login@v1
         with:
@@ -90,7 +90,7 @@ jobs:
 
       - name: kubectl deploy
         run: |
-          kubectl -n  ${{ env.NAMESPACE }} apply -f ./deploy-templates/deployment.yaml
+          kubectl -n  ${{ env.NAMESPACE }} apply -f ./deployment.yaml
           kubectl -n  ${{ env.NAMESPACE }} rollout status deployment httpclienttests-disabled-deployment
           kubectl -n  ${{ env.NAMESPACE }} rollout status deployment httpclienttests-enabled-deployment
           kubectl -n  ${{ env.NAMESPACE }} rollout status deployment httpclienttests-test-deployment
