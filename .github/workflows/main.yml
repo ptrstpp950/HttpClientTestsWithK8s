@@ -15,10 +15,12 @@ on:
 
 env:
   REGISTRY_NAME: httptest.azurecr.io
+  REGISTRY_USERNAME: httptest
+  APP_NAME: httpclienttests
 #  CLUSTER_NAME: {cluster-name}
 #  CLUSTER_RESOURCE_GROUP: {resource-group-name}
 #  NAMESPACE: {namespace-name}
-#  APP_NAME: {app-name}
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -34,7 +36,7 @@ jobs:
       - uses: azure/docker-login@v1
         with:
           login-server: ${{ env.REGISTRY_NAME }}
-          username: ${{ secrets.REGISTRY_USERNAME }} 
+          username: ${{ env.REGISTRY_USERNAME }} 
           password: ${{ secrets.REGISTRY_PASSWORD }}
     
       # Container build and push to a Azure Container registry (ACR)
