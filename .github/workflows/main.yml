@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
@@ -18,9 +18,9 @@ env:
   REGISTRY_USERNAME: httptest
   APP_NAME: httpclienttests
   VERSION: v_${{ github.sha }}
-#  CLUSTER_NAME: {cluster-name}
-#  CLUSTER_RESOURCE_GROUP: {resource-group-name}
-#  NAMESPACE: {namespace-name}
+  CLUSTER_NAME: aks-http-test
+  CLUSTER_RESOURCE_GROUP: httpTest
+  NAMESPACE: default
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -39,9 +39,10 @@ jobs:
           login-server: ${{ env.REGISTRY_NAME }}
           username: ${{ env.REGISTRY_USERNAME }} 
           password: ${{ secrets.REGISTRY_PASSWORD }}
-    
+
       # Container build and push to a Azure Container registry (ACR)
-      - run: |
+      - name: Docker buildx buid
+        run: |
           cd HttpClientTests
           docker buildx build . -t ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }}
           docker push ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }}
@@ -52,7 +53,29 @@ jobs:
           output: ./deploy-templates/deployment.yaml
         env:
           VERSION: ${{ env.VERSION }}
-      - run: |
+      - name: Show deployment file
+        run: |
           cat ./deploy-templates/deployment.yaml
-      
-      
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: azure/setup-kubectl@v1
+        with:
+          version: 'v1.18.8'
+
+      - uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          resource-group: ${{ env.RESOURCE_GROUP }}
+
+      - name: kubectl deploy
+        run: |
+          kubectl -n  ${{ env.NAMESPACE }} apply -f ./deploy-templates/deployment.yaml
+          kubectl -n  ${{ env.NAMESPACE }} rollout status deployment httpclienttests-disabled-deployment
+          kubectl -n  ${{ env.NAMESPACE }} rollout status deployment httpclienttests-enabled-deployment
+          kubectl -n  ${{ env.NAMESPACE }} rollout status deployment httpclienttests-test-deployment
+          kubectl -n  ${{ env.NAMESPACE }} get po -o wide
+
