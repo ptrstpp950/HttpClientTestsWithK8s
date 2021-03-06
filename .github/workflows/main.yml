@@ -17,6 +17,7 @@ env:
   REGISTRY_NAME: httptest.azurecr.io
   REGISTRY_USERNAME: httptest
   APP_NAME: httpclienttests
+  VERSION: v_${{ github.sha }}
 #  CLUSTER_NAME: {cluster-name}
 #  CLUSTER_RESOURCE_GROUP: {resource-group-name}
 #  NAMESPACE: {namespace-name}
@@ -42,7 +43,16 @@ jobs:
       # Container build and push to a Azure Container registry (ACR)
       - run: |
           cd HttpClientTests
-          docker buildx build . -t ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
-          docker push ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
-
+          docker buildx build . -t ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }}
+          docker push ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }}
+      - name: Render Deployment YAML
+        uses: nowactions/envsubst@v1
+        with:
+          input: ./deploy-templates/deployment.template.yaml
+          output: ./deploy-templates/deployment.yaml
+        env:
+          VERSION: ${{ env.VERSION }}
+      - run: |
+          cat ./deploy-templates/deployment.yaml
+      
       
