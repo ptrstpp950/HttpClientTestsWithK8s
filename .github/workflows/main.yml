@@ -41,6 +41,7 @@ jobs:
     
       # Container build and push to a Azure Container registry (ACR)
       - run: |
+          cd HttpClientTests
           docker buildx build . -t ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
           docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
 
