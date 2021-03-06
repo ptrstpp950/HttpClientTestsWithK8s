@@ -46,6 +46,10 @@ jobs:
           cd HttpClientTests
           docker buildx build . -t ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }}
           docker push ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
       - name: Render Deployment YAML
         uses: nowactions/envsubst@v1
         with:
@@ -69,7 +73,7 @@ jobs:
         with:
           creds: '${{ secrets.AZURE_CREDENTIALS }}'
           cluster-name: ${{ env.CLUSTER_NAME }}
-          resource-group: ${{ env.RESOURCE_GROUP }}
+          resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
 
       - name: kubectl deploy
         run: |
