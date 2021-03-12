@@ -44,7 +44,7 @@ jobs:
       - name: Docker buildx buid
         run: |
           cd HttpClientTests
-          docker buildx build . -t ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }} --cache-from ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:cache --cache-to ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:cache 
+          docker buildx build . -t ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }}
           docker push ${{ env.REGISTRY_NAME }}/${{ env.APP_NAME }}:${{ env.VERSION }}
 
       - name: Upload deployment.template.yaml
