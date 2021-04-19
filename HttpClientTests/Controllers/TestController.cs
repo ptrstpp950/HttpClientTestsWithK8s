@@ -17,6 +17,17 @@ using IApplicationLifetime = Microsoft.AspNetCore.Hosting.IApplicationLifetime;
 
 namespace HttpClientTests.Controllers
 {
+    public class StackOverflower
+    {
+        private string m_MyText;
+
+        public string MyText
+        {
+            get { return MyText; }
+            set { this.m_MyText = value; }
+        }
+    }
+    
     [ApiController]
     [Route("")]
     public class TestController : ControllerBase
@@ -57,6 +68,14 @@ namespace HttpClientTests.Controllers
             _httpClientFactory = httpClientFactory;
             _logger = logger;
             _applicationLifetime = applicationLifetime;
+        }
+
+        [HttpGet("crash")]
+        public string Crash()
+        {
+            StackOverflower stackOverflower = new StackOverflower();
+            var text = stackOverflower.MyText;
+            return Environment.MachineName;
         }
 
         [HttpGet]
