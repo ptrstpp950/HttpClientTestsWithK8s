@@ -105,6 +105,19 @@ namespace HttpClientTests.Controllers
             return Ok(Environment.MachineName);
         }
 
+        [HttpGet("httpversion/{url}")]
+        public async Task<dynamic> HttpVersion(string url)
+        {
+            url = WebUtility.UrlDecode(url);
+            var sw = Stopwatch.StartNew();
+            var result = await ClientWithDefaultHandler.GetAsync(url);
+            sw.Stop();
+            return new
+            {
+                Elapsed = sw.ElapsedMilliseconds, CallerHostName = Environment.MachineName, HttpVersion = result.Version
+            };
+        }
+        
         [HttpGet("inside/{count}/{url}")]
         public async Task<dynamic> GetInside(int count, string url)
         {
