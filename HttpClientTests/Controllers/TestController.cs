@@ -64,6 +64,13 @@ namespace HttpClientTests.Controllers
         {
             return Environment.MachineName;
         }
+        
+        [HttpGet("long/{delay}")]
+        public async Task<string> LongGet(int delay)
+        {
+            await Task.Delay(delay);
+            return Environment.MachineName;
+        }
 
         private static int _counter = 0;
         [HttpGet("timeout")]
@@ -160,6 +167,32 @@ namespace HttpClientTests.Controllers
             {
                 dict, CallerHostName = Environment.MachineName
             };
+        }
+        
+        [HttpGet("defaultHttpHandlerParallel/{count}/{url}")]
+        public async Task<dynamic> GetDefaultHttpHandlerParallel(int count, string url)
+        {
+            url = WebUtility.UrlDecode(url);
+            var dict = new Dictionary<string, long>();
+            var sw = Stopwatch.StartNew();
+            var results = await Task.WhenAll(Enumerable.Range(0, count).Select(i => GetAsync(url)));
+            foreach (var result in results)
+            {
+                dict[result] = dict.GetValueOrDefault(result) + 1;
+            }
+            sw.Stop();
+            dict["TotalTime"] = sw.ElapsedMilliseconds;
+            return new
+            {
+                dict, CallerHostName = Environment.MachineName
+            };
+        }
+
+        private async Task<string> GetAsync(string url)
+        {
+            var result = await ClientWithDefaultHandler.GetAsync(url);
+            var content = await result.Content.ReadAsStringAsync();
+            return content;
         }
 
         [HttpGet("customHandler/{count}/{url}")]
