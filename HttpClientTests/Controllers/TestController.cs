@@ -68,7 +68,6 @@ namespace HttpClientTests.Controllers
             _httpClientFactory = httpClientFactory;
             _logger = logger;
             _applicationLifetime = applicationLifetime;
-            ClientWithDefaultHandler.DefaultRequestVersion = new Version(2, 0);
         }
 
         [HttpGet("crash")]
