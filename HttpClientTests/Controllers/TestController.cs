@@ -146,6 +146,7 @@ namespace HttpClientTests.Controllers
             var dict = new Dictionary<string, long>();
             var sw = Stopwatch.StartNew();
             var client = _httpClientFactory.CreateClient();
+            dict["CreateClient"] = sw.ElapsedMilliseconds;
             for (var i = 0; i < count; i++)
             {
                 var result = await client.GetAsync(url);
