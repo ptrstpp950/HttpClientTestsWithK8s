@@ -63,10 +63,10 @@ namespace HttpClientTests.Controllers
                 );
         }
 
-        // static TestController()
-        // {
-        //     ClientWithDefaultHandler.DefaultRequestVersion = new Version(2, 0);
-        // }
+        static TestController()
+        {
+            ClientWithDefaultHandler.DefaultRequestVersion = new Version(2, 0);
+        }
         
         public TestController(IHttpClientFactory httpClientFactory, ILogger<TestController> logger, IHostApplicationLifetime applicationLifetime)
         {
