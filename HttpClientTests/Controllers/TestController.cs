@@ -162,18 +162,18 @@ namespace HttpClientTests.Controllers
         public async Task<dynamic> GetOutside(int count, string url)
         {
             url = WebUtility.UrlDecode(url);
-         //   var dict = new Dictionary<string, long>();
+            var dict = new Dictionary<string, long>();
             var client = _httpClientFactory.CreateClient();
             var results = await Benchmark.Run(async () =>
             {
                 var result = await client.GetAsync(url);
                 var content = await result.Content.ReadAsStringAsync();
-              //  dict[content] = dict.GetValueOrDefault(content) + 1;
+                dict[content] = dict.GetValueOrDefault(content) + 1;
             }, count);
             
             return new
             {
-               CallerHostName = Environment.MachineName, Result = results
+               dict, CallerHostName = Environment.MachineName, Result = results
             };
         }
         
@@ -203,18 +203,16 @@ namespace HttpClientTests.Controllers
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < count; i++)
+            var results = await Benchmark.Run(async () =>
             {
                 var result = await ClientWithDefaultHandler.GetAsync(url);
                 var content = await result.Content.ReadAsStringAsync();
                 dict[content] = dict.GetValueOrDefault(content) + 1;
-            }
-            sw.Stop();
-            dict["TotalTime"] = sw.ElapsedMilliseconds;
+            }, count);
+            
             return new
             {
-                dict, CallerHostName = Environment.MachineName
+                dict, CallerHostName = Environment.MachineName, results
             };
         }
         
