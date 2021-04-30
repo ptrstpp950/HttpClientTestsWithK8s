@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Running;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -63,10 +64,10 @@ namespace HttpClientTests.Controllers
                 );
         }
 
-        static TestController()
-        {
-            ClientWithDefaultHandler.DefaultRequestVersion = new Version(2, 0);
-        }
+        // static TestController()
+        // {
+        //     ClientWithDefaultHandler.DefaultRequestVersion = new Version(2, 0);
+        // }
         
         public TestController(IHttpClientFactory httpClientFactory, ILogger<TestController> logger, IHostApplicationLifetime applicationLifetime)
         {
@@ -127,6 +128,13 @@ namespace HttpClientTests.Controllers
             {
                 Elapsed = sw.ElapsedMilliseconds, CallerHostName = Environment.MachineName, HttpVersion = result.Version
             };
+        }
+
+        [HttpGet("benchmark")]
+        public string RunBenchmark()
+        {
+            var summary = BenchmarkRunner.Run<TestClass>();
+            return summary.ToString();
         }
         
         [HttpGet("inside/{count}/{url}")]

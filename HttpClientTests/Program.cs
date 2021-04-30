@@ -14,7 +14,7 @@ namespace HttpClientTests
     {
         public static void Main(string[] args)
         {
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+         //   AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -22,13 +22,13 @@ namespace HttpClientTests
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.ConfigureKestrel(options =>
-                    {
-                //        options.ListenLocalhost(5002, o => o.Protocols = HttpProtocols.Http2);
-                 //       options.ListenLocalhost(5002, o => o.Protocols = HttpProtocols.Http2);
-                        options.ListenLocalhost(5000, o => o.Protocols = HttpProtocols.Http2);
-                        //options.ConfigureEndpointDefaults(lo => lo.Protocols = HttpProtocols.Http2);
-                    });
+                //     webBuilder.ConfigureKestrel(options =>
+                //     {
+                // //        options.ListenLocalhost(5002, o => o.Protocols = HttpProtocols.Http2);
+                //  //       options.ListenLocalhost(5002, o => o.Protocols = HttpProtocols.Http2);
+                //         options.ListenLocalhost(5000, o => o.Protocols = HttpProtocols.Http2);
+                //         //options.ConfigureEndpointDefaults(lo => lo.Protocols = HttpProtocols.Http2);
+                //     });
                     webBuilder.UseStartup<Startup>();
                 });
     }
