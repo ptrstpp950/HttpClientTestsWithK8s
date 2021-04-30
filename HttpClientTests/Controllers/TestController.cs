@@ -63,6 +63,11 @@ namespace HttpClientTests.Controllers
                 );
         }
 
+        // static TestController()
+        // {
+        //     ClientWithDefaultHandler.DefaultRequestVersion = new Version(2, 0);
+        // }
+        
         public TestController(IHttpClientFactory httpClientFactory, ILogger<TestController> logger, IHostApplicationLifetime applicationLifetime)
         {
             _httpClientFactory = httpClientFactory;
@@ -82,6 +87,12 @@ namespace HttpClientTests.Controllers
         public string Get()
         {
             return Environment.MachineName;
+        }
+
+        [HttpGet("guid")]
+        public string GetGuid()
+        {
+            return Guid.NewGuid().ToString();
         }
         
         [HttpGet("long/{delay}")]
@@ -144,8 +155,8 @@ namespace HttpClientTests.Controllers
         {
             url = WebUtility.UrlDecode(url);
             var dict = new Dictionary<string, long>();
-            var sw = Stopwatch.StartNew();
             var client = _httpClientFactory.CreateClient();
+            var sw = Stopwatch.StartNew();
             dict["CreateClient"] = sw.ElapsedMilliseconds;
             for (var i = 0; i < count; i++)
             {
